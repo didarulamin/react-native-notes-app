@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
+import useFirebase from "../../hooks/useFirebase";
 // import useFirebase from "../../hooks/useFirebase";
 import Button from "../components/Button";
 import Input from "../components/Input";
-import { firebase } from "../../hooks/useFirebase";
+// import { firebase, provider } from "../../hooks/useFirebase";
 
 const Login = ({ navigation }) => {
+  const { firebase, setUser } = useFirebase();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -17,6 +19,7 @@ const Login = ({ navigation }) => {
         // Signed in
         var user = userCredential.user;
         console.log(user);
+        setUser(user);
         // ...
       })
       .catch((error) => {
@@ -24,6 +27,35 @@ const Login = ({ navigation }) => {
         var errorMessage = error.message;
       });
   };
+
+  const googleLoginHandler = () => {
+    // var provider = new firebase.auth.GoogleAuthProvider();
+    firebase
+      .auth()
+      .signInWithPopup(provider)
+      .then((result) => {
+        var credential = result.credential;
+
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        var token = credential.accessToken;
+        // The signed-in user info.
+        const user = result.user;
+        setUser(user);
+
+        // ...
+      })
+      .catch((error) => {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // The email of the user's account used.
+        var email = error.email;
+        // The firebase.auth.AuthCredential type that was used.
+        var credential = error.credential;
+        // ...
+      });
+  };
+
   return (
     <View style={styles.container}>
       <View>
@@ -44,6 +76,11 @@ const Login = ({ navigation }) => {
           onPress={loginHandler}
           title="Login"
           customStyles={{ alignSelf: "center", marginTop: 25 }}
+        />
+        <Button
+          onPress={googleLoginHandler}
+          title="Continue with Google"
+          customStyles={{ alignSelf: "center", marginTop: 25, padding: 5 }}
         />
       </View>
 

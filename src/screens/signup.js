@@ -3,8 +3,10 @@ import { View, Text, StyleSheet } from "react-native";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import RadioInput from "../components/RadioInput";
-import { firebase } from "../../hooks/useFirebase";
+// import { firebase } from "../../hooks/useFirebase";
 import { LogBox } from "react-native";
+import useFirebase from "../../hooks/useFirebase";
+// import useAuth from "../../hooks/useAuth";
 
 LogBox.ignoreLogs(["Setting a timer"]);
 
@@ -18,6 +20,8 @@ const signup = () => {
   const [age, setAge] = useState("");
 
   const handleSignup = () => {
+    const { firebase } = useFirebase();
+
     firebase
       .auth()
       .createUserWithEmailAndPassword(email, password)
@@ -31,12 +35,27 @@ const signup = () => {
           gender: gender,
         };
 
+        result.user
+          .updateProfile({
+            displayName: fullName,
+          })
+          .then(() => {
+            // Update successful
+            // ...
+          })
+          .catch((error) => {
+            // An error occurred
+            // ...
+          });
+
         const userRef = firebase.firestore().collection("user");
         userRef.doc(uid).set(userProfile);
       })
       .catch((error) => {
         console.log(error);
       });
+
+    // const user = firebase.auth().currentUser;
   };
 
   return (
